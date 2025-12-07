@@ -13,7 +13,7 @@
 
 ![Screenshot](./docs/assets/report_screenshot.png)
 
-> [!TIP] Issue Example
+> [!TIP]
 > To check an example of the generated report, see [this issue](https://github.com/brpaz/trivy-reporter-action/issues/1).
 
 ## Getting Started
