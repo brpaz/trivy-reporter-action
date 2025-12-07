@@ -11,7 +11,8 @@ env:
 jobs:
   release:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -22,7 +23,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version-file: '.node-version'
+          node-version-file: ".node-version"
           cache: pnpm
 
       - name: Bump version
@@ -38,5 +39,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: ${{ github.event.release.target_commitish }}
-          commit_message: 'chore(release): [skip-ci] ${{ github.event.release.tag_name }}'
+          commit_message: "chore(release): [skip-ci] ${{ github.event.release.tag_name }}"
           file_pattern: CHANGELOG.md package.json
