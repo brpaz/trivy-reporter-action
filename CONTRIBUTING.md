@@ -11,7 +11,6 @@ Contributions can take many forms, not just code. Here are some ways you can con
 - Reviewing and providing feedback on existing pull requests.
 - Helping other users in the community.
 
-
 ## Setup the Development Environment
 
 ### Pre-requisites
@@ -27,7 +26,7 @@ To install Devenv, follow the instructions at [devenv.sh](https://devenv.sh/gett
 ### Running the Development Environment
 
 ```bash
-git clone https://github.com/brpaz/github-action-ts-template.git
+git clone https://github.com/brpaz/trivy-reporter-action.git
 cd github-action-ts-template
 direnv allow
 ```
@@ -66,7 +65,6 @@ This will compile the TypeScript source code and generate the output files in th
 ### Git Commit Hooks
 
 This project uses [Husky](https://typicode.github.io/husky/#/) to manage Git commit hooks. Husky hooks are automatically installed when you start the Devenv shell.
-
 
 ## Conventional Commits
 
