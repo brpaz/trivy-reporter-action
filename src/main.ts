@@ -16,9 +16,9 @@ export async function run(): Promise<void> {
 
     const labels = labelsInput
       ? labelsInput
-        .split(',')
-        .map((l) => l.trim())
-        .filter((l) => l.length > 0)
+          .split(',')
+          .map((l) => l.trim())
+          .filter((l) => l.length > 0)
       : []
 
     const octokit = getOctokit(githubToken)
