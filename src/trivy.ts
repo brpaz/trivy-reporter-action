@@ -21,6 +21,9 @@ export interface TrivyVulnerability {
   Description: string
   References: string[]
   PrimaryURL?: string
+  CweIDs?: string[]
+  PublishedDate?: string
+  LastModifiedDate?: string
 }
 
 /**

@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createOrUpdateIssue, generateMarkdownReport } from './issue.js'
+import {
+  createOrUpdateIssue,
+  generateMarkdownReport,
+  aggregateVulnerabilities,
+  generateCveMarkdownReport,
+} from './issue.js'
 import type { TrivyReport } from './trivy.js'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -292,11 +297,16 @@ describe('createOrUpdateIssue', () => {
       'repo',
       report,
       'Security Report',
+      undefined,
+      'single',
     )
 
-    expect(result.issueNumber).toBe(42)
-    expect(result.issueUrl).toBe('https://github.com/owner/repo/issues/42')
-    expect(result.vulnerabilitiesFound).toBe(true)
+    expect(result).not.toBeInstanceOf(Array)
+    if (!Array.isArray(result)) {
+      expect(result.issueNumber).toBe(42)
+      expect(result.issueUrl).toBe('https://github.com/owner/repo/issues/42')
+      expect(result.vulnerabilitiesFound).toBe(true)
+    }
     expect(mockOctokit.rest.issues.create).toHaveBeenCalledWith(
       expect.objectContaining({
         owner: 'owner',
@@ -322,11 +332,16 @@ describe('createOrUpdateIssue', () => {
       'repo',
       report,
       'Security Report',
+      undefined,
+      'single',
     )
 
-    expect(result.vulnerabilitiesFound).toBe(false)
-    expect(result.issueNumber).toBe(42)
-    expect(result.issueUrl).toBe('https://github.com/owner/repo/issues/42')
+    expect(result).not.toBeInstanceOf(Array)
+    if (!Array.isArray(result)) {
+      expect(result.vulnerabilitiesFound).toBe(false)
+      expect(result.issueNumber).toBe(42)
+      expect(result.issueUrl).toBe('https://github.com/owner/repo/issues/42')
+    }
     expect(mockOctokit.rest.issues.update).toHaveBeenCalledWith(
       expect.objectContaining({
         state: 'closed',
@@ -347,13 +362,342 @@ describe('createOrUpdateIssue', () => {
       'repo',
       report,
       'Security Report',
+      undefined,
+      'single',
     )
 
-    expect(result.vulnerabilitiesFound).toBe(false)
-    expect(result.issueNumber).toBeUndefined()
-    expect(result.issueUrl).toBeUndefined()
+    expect(result).not.toBeInstanceOf(Array)
+    if (!Array.isArray(result)) {
+      expect(result.vulnerabilitiesFound).toBe(false)
+      expect(result.issueNumber).toBeUndefined()
+      expect(result.issueUrl).toBeUndefined()
+    }
     expect(mockOctokit.rest.issues.create).not.toHaveBeenCalled()
     expect(mockOctokit.rest.issues.update).not.toHaveBeenCalled()
     expect(mockOctokit.rest.issues.createComment).not.toHaveBeenCalled()
+  })
+})
+
+describe('aggregateVulnerabilities', () => {
+  it('should aggregate vulnerabilities by ID', () => {
+    const report: TrivyReport = {
+      Results: [
+        {
+          Target: 'alpine:3.22.2',
+          Class: 'os-pkgs',
+          Type: 'alpine',
+          Vulnerabilities: [
+            {
+              VulnerabilityID: 'CVE-2024-1234',
+              PkgName: 'busybox',
+              InstalledVersion: '1.0.0',
+              FixedVersion: '1.0.1',
+              Severity: 'HIGH',
+              Title: 'Test Vulnerability',
+              Description: 'Test description',
+              References: ['https://example.com'],
+            },
+            {
+              VulnerabilityID: 'CVE-2024-5678',
+              PkgName: 'openssl',
+              InstalledVersion: '2.0.0',
+              FixedVersion: '2.0.1',
+              Severity: 'CRITICAL',
+              Title: 'Critical bug',
+              Description: 'Critical description',
+              References: [],
+            },
+          ],
+        },
+        {
+          Target: 'node:20',
+          Class: 'lang-pkgs',
+          Type: 'npm',
+          Vulnerabilities: [
+            {
+              VulnerabilityID: 'CVE-2024-1234',
+              PkgName: 'lodash',
+              InstalledVersion: '4.17.0',
+              FixedVersion: '4.17.21',
+              Severity: 'HIGH',
+              Title: 'Test Vulnerability',
+              Description: 'Test description',
+              References: ['https://example.com'],
+            },
+          ],
+        },
+      ],
+    }
+
+    const aggregated = aggregateVulnerabilities(report)
+
+    expect(aggregated.size).toBe(2)
+    expect(aggregated.has('CVE-2024-1234')).toBe(true)
+    expect(aggregated.has('CVE-2024-5678')).toBe(true)
+
+    const cve1234 = aggregated.get('CVE-2024-1234')!
+    expect(cve1234.vulnerabilityId).toBe('CVE-2024-1234')
+    expect(cve1234.severity).toBe('HIGH')
+    expect(cve1234.occurrences).toHaveLength(2)
+    expect(cve1234.occurrences[0].pkgName).toBe('busybox')
+    expect(cve1234.occurrences[0].target).toBe('alpine:3.22.2')
+    expect(cve1234.occurrences[1].pkgName).toBe('lodash')
+    expect(cve1234.occurrences[1].target).toBe('node:20')
+
+    const cve5678 = aggregated.get('CVE-2024-5678')!
+    expect(cve5678.vulnerabilityId).toBe('CVE-2024-5678')
+    expect(cve5678.severity).toBe('CRITICAL')
+    expect(cve5678.occurrences).toHaveLength(1)
+    expect(cve5678.occurrences[0].pkgName).toBe('openssl')
+  })
+
+  it('should handle empty results', () => {
+    const report: TrivyReport = {
+      Results: [],
+    }
+
+    const aggregated = aggregateVulnerabilities(report)
+    expect(aggregated.size).toBe(0)
+  })
+
+  it('should handle results with no vulnerabilities', () => {
+    const report: TrivyReport = {
+      Results: [
+        {
+          Target: 'alpine:3.22.2',
+          Class: 'os-pkgs',
+          Type: 'alpine',
+          Vulnerabilities: [],
+        },
+      ],
+    }
+
+    const aggregated = aggregateVulnerabilities(report)
+    expect(aggregated.size).toBe(0)
+  })
+})
+
+describe('generateCveMarkdownReport', () => {
+  it('should generate report for a single CVE', () => {
+    const vuln = {
+      vulnerabilityId: 'CVE-2024-1234',
+      severity: 'HIGH',
+      title: 'Test Vulnerability',
+      description: 'This is a test vulnerability description',
+      references: ['https://example.com/ref1', 'https://example.com/ref2'],
+      primaryUrl: 'https://nvd.nist.gov/vuln/detail/CVE-2024-1234',
+      cweIds: ['CWE-79', 'CWE-89'],
+      publishedDate: '2024-01-01T00:00:00Z',
+      lastModifiedDate: '2024-01-02T00:00:00Z',
+      occurrences: [
+        {
+          target: 'alpine:3.22.2',
+          pkgName: 'busybox',
+          installedVersion: '1.0.0',
+          fixedVersion: '1.0.1',
+          type: 'alpine',
+          class: 'os-pkgs',
+        },
+        {
+          target: 'node:20',
+          pkgName: 'lodash',
+          installedVersion: '4.17.0',
+          fixedVersion: '4.17.21',
+          type: 'npm',
+          class: 'lang-pkgs',
+        },
+      ],
+    }
+
+    const markdown = generateCveMarkdownReport(vuln)
+
+    expect(markdown).toContain('# 🟠 HIGH Severity')
+    expect(markdown).toContain('## Vulnerability: CVE-2024-1234')
+    expect(markdown).toContain('This is a test vulnerability description')
+    expect(markdown).toContain('**CWE IDs:** CWE-79, CWE-89')
+    expect(markdown).toContain('### 🔗 References')
+    expect(markdown).toContain('https://example.com/ref1')
+    expect(markdown).toContain('### 📦 Affected Packages')
+    expect(markdown).toContain('busybox')
+    expect(markdown).toContain('lodash')
+    expect(markdown).toContain('**Published:** 2024-01-01T00:00:00Z')
+    expect(markdown).toContain('**Last Modified:** 2024-01-02T00:00:00Z')
+  })
+
+  it('should handle vulnerability with minimal data', () => {
+    const vuln = {
+      vulnerabilityId: 'CVE-2024-9999',
+      severity: 'UNKNOWN',
+      title: '',
+      description: '',
+      references: [],
+      occurrences: [
+        {
+          target: 'test:latest',
+          pkgName: 'test-pkg',
+          installedVersion: '1.0.0',
+          fixedVersion: '',
+          type: 'test',
+          class: 'test',
+        },
+      ],
+    }
+
+    const markdown = generateCveMarkdownReport(vuln)
+
+    expect(markdown).toContain('CVE-2024-9999')
+    expect(markdown).toContain('No description available')
+    expect(markdown).toContain('test-pkg')
+  })
+})
+
+describe('createOrUpdateIssue - per-cve mode', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should create separate issues for each CVE', async () => {
+    const report: TrivyReport = {
+      Results: [
+        {
+          Target: 'alpine:3.22.2',
+          Class: 'os-pkgs',
+          Type: 'alpine',
+          Vulnerabilities: [
+            {
+              VulnerabilityID: 'CVE-2024-1234',
+              PkgName: 'busybox',
+              InstalledVersion: '1.0.0',
+              FixedVersion: '1.0.1',
+              Severity: 'HIGH',
+              Title: 'Test Vulnerability 1',
+              Description: 'Test description 1',
+              References: [],
+            },
+            {
+              VulnerabilityID: 'CVE-2024-5678',
+              PkgName: 'openssl',
+              InstalledVersion: '2.0.0',
+              FixedVersion: '2.0.1',
+              Severity: 'CRITICAL',
+              Title: 'Test Vulnerability 2',
+              Description: 'Test description 2',
+              References: [],
+            },
+          ],
+        },
+      ],
+    }
+
+    mockOctokit.rest.issues.listForRepo.mockResolvedValue({ data: [] })
+    mockOctokit.rest.issues.create
+      .mockResolvedValueOnce({
+        data: {
+          number: 1,
+          html_url: 'https://github.com/owner/repo/issues/1',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          number: 2,
+          html_url: 'https://github.com/owner/repo/issues/2',
+        },
+      })
+
+    const result = await createOrUpdateIssue(
+      mockOctokit as any,
+      'owner',
+      'repo',
+      report,
+      'Ignored in per-cve mode',
+      [],
+      'per-cve',
+    )
+
+    expect(Array.isArray(result)).toBe(true)
+    if (Array.isArray(result)) {
+      expect(result).toHaveLength(2)
+      expect(result[0].vulnerabilitiesFound).toBe(true)
+      expect(result[1].vulnerabilitiesFound).toBe(true)
+    }
+    expect(mockOctokit.rest.issues.create).toHaveBeenCalledTimes(2)
+    expect(mockOctokit.rest.issues.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.stringContaining('[Security] CVE-2024-1234:'),
+      }),
+    )
+    expect(mockOctokit.rest.issues.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: expect.stringContaining('[Security] CVE-2024-5678:'),
+      }),
+    )
+  })
+
+  it('should close resolved CVE issues', async () => {
+    const report: TrivyReport = {
+      Results: [
+        {
+          Target: 'alpine:3.22.2',
+          Class: 'os-pkgs',
+          Type: 'alpine',
+          Vulnerabilities: [
+            {
+              VulnerabilityID: 'CVE-2024-1234',
+              PkgName: 'busybox',
+              InstalledVersion: '1.0.0',
+              FixedVersion: '1.0.1',
+              Severity: 'HIGH',
+              Title: 'Test Vulnerability',
+              Description: 'Test description',
+              References: [],
+            },
+          ],
+        },
+      ],
+    }
+
+    // Mock existing issues - one current, one resolved
+    mockOctokit.rest.issues.listForRepo.mockResolvedValue({
+      data: [
+        {
+          number: 1,
+          title: '[Security] CVE-2024-1234: Test Vulnerability',
+          html_url: 'https://github.com/owner/repo/issues/1',
+        },
+        {
+          number: 2,
+          title: '[Security] CVE-2024-9999: Old Vulnerability',
+          html_url: 'https://github.com/owner/repo/issues/2',
+        },
+      ],
+    })
+    mockOctokit.rest.issues.update.mockResolvedValue({ data: {} })
+    mockOctokit.rest.issues.createComment.mockResolvedValue({ data: {} })
+
+    const result = await createOrUpdateIssue(
+      mockOctokit as any,
+      'owner',
+      'repo',
+      report,
+      'Ignored',
+      [],
+      'per-cve',
+    )
+
+    expect(Array.isArray(result)).toBe(true)
+    if (Array.isArray(result)) {
+      // One updated + one closed
+      expect(result.length).toBeGreaterThanOrEqual(2)
+      const closed = result.find((r) => !r.vulnerabilitiesFound)
+      expect(closed).toBeDefined()
+    }
+
+    // Should close the resolved CVE
+    expect(mockOctokit.rest.issues.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        issue_number: 2,
+        state: 'closed',
+      }),
+    )
   })
 })
