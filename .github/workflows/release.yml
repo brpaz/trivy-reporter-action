@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  PNPM_VERSION: 8
+  PNPM_VERSION: 10
 
 jobs:
   release:
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: ".node-version"
-          cache: pnpm
+          cache: false
 
       - name: Bump version
         run: pnpm version --no-git-tag-version ${{ github.event.release.tag_name }}
