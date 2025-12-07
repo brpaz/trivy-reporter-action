@@ -40,6 +40,7 @@ describe('run', () => {
         'issue-title': 'Security Report',
         'github-token': 'fake-token',
         labels: 'security,trivy',
+        'issue-mode': '',
       }
       return inputs[name] || ''
     })
@@ -71,6 +72,7 @@ describe('run', () => {
       required: true,
     })
     expect(mockGetInput).toHaveBeenCalledWith('labels', { required: false })
+    expect(mockGetInput).toHaveBeenCalledWith('issue-mode', { required: false })
 
     expect(mockParseTrivyReport).toHaveBeenCalledWith('trivy-report.json')
     expect(mockCreateOrUpdateIssue).toHaveBeenCalledWith(
@@ -80,6 +82,7 @@ describe('run', () => {
       mockReport,
       'Security Report',
       ['security', 'trivy'],
+      'single',
     )
 
     expect(mockSetOutput).toHaveBeenCalledWith(
@@ -98,6 +101,7 @@ describe('run', () => {
         'issue-title': 'Security Report',
         'github-token': 'fake-token',
         labels: 'security, trivy, vulnerability',
+        'issue-mode': '',
       }
       return inputs[name] || ''
     })
@@ -119,6 +123,7 @@ describe('run', () => {
       expect.anything(),
       'Security Report',
       ['security', 'trivy', 'vulnerability'],
+      'single',
     )
   })
 
@@ -129,6 +134,7 @@ describe('run', () => {
         'issue-title': 'Security Report',
         'github-token': 'fake-token',
         labels: '',
+        'issue-mode': '',
       }
       return inputs[name] || ''
     })
@@ -150,6 +156,7 @@ describe('run', () => {
       expect.anything(),
       'Security Report',
       [],
+      'single',
     )
   })
 
@@ -160,6 +167,7 @@ describe('run', () => {
         'issue-title': 'Security Report',
         'github-token': 'fake-token',
         labels: '  security  ,  trivy  ,  ',
+        'issue-mode': '',
       }
       return inputs[name] || ''
     })
@@ -189,6 +197,7 @@ describe('run', () => {
       expect.anything(),
       'Security Report',
       ['security', 'trivy'],
+      'single',
     )
   })
 
@@ -277,5 +286,91 @@ describe('run', () => {
 
     expect(mockSetFailed).not.toHaveBeenCalled()
     expect(mockSetOutput).not.toHaveBeenCalled()
+  })
+
+  it('should handle per-cve mode correctly', async () => {
+    mockGetInput.mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'report-path': 'trivy-report.json',
+        'issue-title': 'Security Report',
+        'github-token': 'fake-token',
+        labels: 'security',
+        'issue-mode': 'per-cve',
+      }
+      return inputs[name] || ''
+    })
+
+    mockParseTrivyReport.mockResolvedValue({ Results: [] })
+    mockGetOctokit.mockReturnValue({} as any)
+    mockCreateOrUpdateIssue.mockResolvedValue([
+      {
+        issueNumber: 1,
+        issueUrl: 'https://github.com/test-owner/test-repo/issues/1',
+        vulnerabilitiesFound: true,
+      },
+      {
+        issueNumber: 2,
+        issueUrl: 'https://github.com/test-owner/test-repo/issues/2',
+        vulnerabilitiesFound: true,
+      },
+    ])
+
+    await run()
+
+    expect(mockCreateOrUpdateIssue).toHaveBeenCalledWith(
+      expect.anything(),
+      'test-owner',
+      'test-repo',
+      expect.anything(),
+      'Security Report',
+      ['security'],
+      'per-cve',
+    )
+
+    expect(mockInfo).toHaveBeenCalledWith(
+      expect.stringContaining('Created or updated 2 issue(s)'),
+    )
+    expect(mockSetOutput).toHaveBeenCalledWith(
+      'issue-url',
+      'https://github.com/test-owner/test-repo/issues/1',
+    )
+  })
+
+  it('should warn on invalid issue-mode', async () => {
+    const mockWarning = vi.mocked(core.warning)
+
+    mockGetInput.mockImplementation((name: string) => {
+      const inputs: Record<string, string> = {
+        'report-path': 'trivy-report.json',
+        'issue-title': 'Security Report',
+        'github-token': 'fake-token',
+        labels: '',
+        'issue-mode': 'invalid-mode',
+      }
+      return inputs[name] || ''
+    })
+
+    mockParseTrivyReport.mockResolvedValue({ Results: [] })
+    mockGetOctokit.mockReturnValue({} as any)
+    mockCreateOrUpdateIssue.mockResolvedValue({
+      issueNumber: 42,
+      issueUrl: 'https://github.com/test-owner/test-repo/issues/42',
+      vulnerabilitiesFound: false,
+    })
+
+    await run()
+
+    expect(mockWarning).toHaveBeenCalledWith(
+      expect.stringContaining("Invalid issue-mode 'invalid-mode'"),
+    )
+    expect(mockCreateOrUpdateIssue).toHaveBeenCalledWith(
+      expect.anything(),
+      'test-owner',
+      'test-repo',
+      expect.anything(),
+      'Security Report',
+      [],
+      'single',
+    )
   })
 })
