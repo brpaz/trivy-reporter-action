@@ -1,0 +1,73 @@
+{
+  "name": "trivy-reporter-action",
+  "description": "A GitHub Action to manage Trivy security reports using GitHub Issues",
+  "version": "0.0.0",
+  "author": "Bruno Paz",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/brpaz/trivy-reporter-action",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brpaz/trivy-reporter-action.git"
+  },
+  "bugs": {
+    "url": "https://github.com/brpaz/trivy-reporter-action/issues"
+  },
+  "keywords": [
+    "actions"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "lint": "eslint src/**/*.ts",
+    "lint:actions": "actionlint",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format:check": "prettier --check src/**/*.ts",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write src/**/*.ts",
+    "test": "vitest run",
+    "test:watch": "vitest run --watch",
+    "test:ui": "vitest ui"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.1"
+  },
+  "devDependencies": {
+    "@commitlint/config-conventional": "^20.0.0",
+    "@eslint/js": "^9.39.1",
+    "@tsconfig/node24": "^24.0.1",
+    "@types/node": "^24.10.0",
+    "@vitest/coverage-v8": "^4.0.8",
+    "@vitest/ui": "^4.0.8",
+    "acorn": "^8.15.0",
+    "commitlint": "^20.1.0",
+    "esbuild": "^0.25.12",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.0.11",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.2.5",
+    "tsdown": "^0.16.1",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^8.46.3",
+    "vitepress": "^1.6.4",
+    "vitest": "^4.0.8"
+  }
+}

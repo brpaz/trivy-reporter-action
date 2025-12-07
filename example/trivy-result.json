@@ -1,0 +1,545 @@
+{
+  "SchemaVersion": 2,
+  "CreatedAt": "2025-11-30T16:12:59.284940776Z",
+  "ArtifactName": "astro-template:local-dev",
+  "ArtifactType": "container_image",
+  "Metadata": {
+    "Size": 162399744,
+    "OS": {
+      "Family": "alpine",
+      "Name": "3.22.2"
+    },
+    "ImageID": "sha256:49e0ad1279de1597a3bf4335aa0b6097fab8cdbe4cdd4886a68255770d6f0fbe",
+    "DiffIDs": [
+      "sha256:256f393e029fa2063d8c93720da36a74a032bed3355a2bc3e313ad12f8bde9d1",
+      "sha256:b0f89ac7b96689b3a3132ecd2a444b2c50457582dd0d902d5df4fb1dc387dadf",
+      "sha256:d3b1ea8ff6e6deea487334f351fe4a288fbf1edb3e0a77a41ea8685404098eed",
+      "sha256:2497eefc52641b150e173349a15fd0247a0d6e9f409b8d0c3547ad9ee1344ec9"
+    ],
+    "RepoTags": [
+      "astro-template:local-dev"
+    ],
+    "ImageConfig": {
+      "architecture": "amd64",
+      "created": "2025-11-12T18:36:38.288189468Z",
+      "history": [
+        {
+          "created": "2025-10-08T11:04:56Z",
+          "created_by": "ADD alpine-minirootfs-3.22.2-x86_64.tar.gz / # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2025-10-08T11:04:56Z",
+          "created_by": "CMD [\"/bin/sh\"]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-11-12T18:36:34Z",
+          "created_by": "ENV NODE_VERSION=24.11.1",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-11-12T18:36:34Z",
+          "created_by": "RUN /bin/sh -c addgroup -g 1000 node     \u0026\u0026 adduser -u 1000 -G node -s /bin/sh -D node     \u0026\u0026 apk add --no-cache         libstdc++     \u0026\u0026 apk add --no-cache --virtual .build-deps         curl     \u0026\u0026 ARCH= OPENSSL_ARCH='linux*' \u0026\u0026 alpineArch=\"$(apk --print-arch)\"       \u0026\u0026 case \"${alpineArch##*-}\" in         x86_64) ARCH='x64' CHECKSUM=\"825c670d7212b6d5a04f8b2462bb3fd4f15cc5842a7e934de307070e4408d2aa\" OPENSSL_ARCH=linux-x86_64;;         x86) OPENSSL_ARCH=linux-elf;;         aarch64) OPENSSL_ARCH=linux-aarch64;;         arm*) OPENSSL_ARCH=linux-armv4;;         ppc64le) OPENSSL_ARCH=linux-ppc64le;;         s390x) OPENSSL_ARCH=linux-s390x;;         *) ;;       esac   \u0026\u0026 if [ -n \"${CHECKSUM}\" ]; then     set -eu;     curl -fsSLO --compressed \"https://unofficial-builds.nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\";     echo \"$CHECKSUM  node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\" | sha256sum -c -       \u0026\u0026 tar -xJf \"node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\" -C /usr/local --strip-components=1 --no-same-owner       \u0026\u0026 ln -s /usr/local/bin/node /usr/local/bin/nodejs;   else     echo \"Building from source\"     \u0026\u0026 apk add --no-cache --virtual .build-deps-full         binutils-gold         g++         gcc         gnupg         libgcc         linux-headers         make         python3         py-setuptools     \u0026\u0026 export GNUPGHOME=\"$(mktemp -d)\"     \u0026\u0026 for key in       5BE8A3F6C8A5C01D106C0AD820B1A390B168D356       DD792F5973C6DE52C432CBDAC77ABFA00DDBF2B7       CC68F5A3106FF448322E48ED27F5E38D5B0A215F       8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600       890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4       C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C       108F52B48DB57BB0CC439B2997B01419BD92F80A       A363A499291CBBC940DD62E41F10027AF002F8B0     ; do       { gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys \"$key\" \u0026\u0026 gpg --batch --fingerprint \"$key\"; } ||       { gpg --batch --keyserver keyserver.ubuntu.com --recv-keys \"$key\" \u0026\u0026 gpg --batch --fingerprint \"$key\"; } ;     done     \u0026\u0026 curl -fsSLO --compressed \"https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION.tar.xz\"     \u0026\u0026 curl -fsSLO --compressed \"https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc\"     \u0026\u0026 gpg --batch --decrypt --output SHASUMS256.txt SHASUMS256.txt.asc     \u0026\u0026 gpgconf --kill all     \u0026\u0026 rm -rf \"$GNUPGHOME\"     \u0026\u0026 grep \" node-v$NODE_VERSION.tar.xz\\$\" SHASUMS256.txt | sha256sum -c -     \u0026\u0026 tar -xf \"node-v$NODE_VERSION.tar.xz\"     \u0026\u0026 cd \"node-v$NODE_VERSION\"     \u0026\u0026 ./configure     \u0026\u0026 make -j$(getconf _NPROCESSORS_ONLN) V=     \u0026\u0026 make install     \u0026\u0026 apk del .build-deps-full     \u0026\u0026 cd ..     \u0026\u0026 rm -Rf \"node-v$NODE_VERSION\"     \u0026\u0026 rm \"node-v$NODE_VERSION.tar.xz\" SHASUMS256.txt.asc SHASUMS256.txt;   fi   \u0026\u0026 rm -f \"node-v$NODE_VERSION-linux-$ARCH-musl.tar.xz\"   \u0026\u0026 find /usr/local/include/node/openssl/archs -mindepth 1 -maxdepth 1 ! -name \"$OPENSSL_ARCH\" -exec rm -rf {} \\;   \u0026\u0026 apk del .build-deps   \u0026\u0026 node --version   \u0026\u0026 npm --version   \u0026\u0026 rm -rf /tmp/* # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2025-11-12T18:36:34Z",
+          "created_by": "ENV YARN_VERSION=1.22.22",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-11-12T18:36:38Z",
+          "created_by": "RUN /bin/sh -c apk add --no-cache --virtual .build-deps-yarn curl gnupg tar   \u0026\u0026 export GNUPGHOME=\"$(mktemp -d)\"   \u0026\u0026 for key in     6A010C5166006599AA17F08146C2130DFD2497F5   ; do     { gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys \"$key\" \u0026\u0026 gpg --batch --fingerprint \"$key\"; } ||     { gpg --batch --keyserver keyserver.ubuntu.com --recv-keys \"$key\" \u0026\u0026 gpg --batch --fingerprint \"$key\"; } ;   done   \u0026\u0026 curl -fsSLO --compressed \"https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz\"   \u0026\u0026 curl -fsSLO --compressed \"https://yarnpkg.com/downloads/$YARN_VERSION/yarn-v$YARN_VERSION.tar.gz.asc\"   \u0026\u0026 gpg --batch --verify yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz   \u0026\u0026 gpgconf --kill all   \u0026\u0026 rm -rf \"$GNUPGHOME\"   \u0026\u0026 mkdir -p /opt   \u0026\u0026 tar -xzf yarn-v$YARN_VERSION.tar.gz -C /opt/   \u0026\u0026 ln -s /opt/yarn-v$YARN_VERSION/bin/yarn /usr/local/bin/yarn   \u0026\u0026 ln -s /opt/yarn-v$YARN_VERSION/bin/yarnpkg /usr/local/bin/yarnpkg   \u0026\u0026 rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz   \u0026\u0026 apk del .build-deps-yarn   \u0026\u0026 yarn --version   \u0026\u0026 rm -rf /tmp/* # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2025-11-12T18:36:38Z",
+          "created_by": "COPY docker-entrypoint.sh /usr/local/bin/ # buildkit",
+          "comment": "buildkit.dockerfile.v0"
+        },
+        {
+          "created": "2025-11-12T18:36:38Z",
+          "created_by": "ENTRYPOINT [\"docker-entrypoint.sh\"]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        },
+        {
+          "created": "2025-11-12T18:36:38Z",
+          "created_by": "CMD [\"node\"]",
+          "comment": "buildkit.dockerfile.v0",
+          "empty_layer": true
+        }
+      ],
+      "os": "linux",
+      "rootfs": {
+        "type": "layers",
+        "diff_ids": [
+          "sha256:256f393e029fa2063d8c93720da36a74a032bed3355a2bc3e313ad12f8bde9d1",
+          "sha256:b0f89ac7b96689b3a3132ecd2a444b2c50457582dd0d902d5df4fb1dc387dadf",
+          "sha256:d3b1ea8ff6e6deea487334f351fe4a288fbf1edb3e0a77a41ea8685404098eed",
+          "sha256:2497eefc52641b150e173349a15fd0247a0d6e9f409b8d0c3547ad9ee1344ec9"
+        ]
+      },
+      "config": {
+        "Cmd": [
+          "node"
+        ],
+        "Entrypoint": [
+          "docker-entrypoint.sh"
+        ],
+        "Env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "NODE_VERSION=24.11.1",
+          "YARN_VERSION=1.22.22"
+        ],
+        "WorkingDir": "/"
+      }
+    },
+    "Layers": [
+      {
+        "Size": 8607232,
+        "DiffID": "sha256:256f393e029fa2063d8c93720da36a74a032bed3355a2bc3e313ad12f8bde9d1"
+      },
+      {
+        "Size": 148399104,
+        "DiffID": "sha256:b0f89ac7b96689b3a3132ecd2a444b2c50457582dd0d902d5df4fb1dc387dadf"
+      },
+      {
+        "Size": 5389824,
+        "DiffID": "sha256:d3b1ea8ff6e6deea487334f351fe4a288fbf1edb3e0a77a41ea8685404098eed"
+      },
+      {
+        "Size": 3584,
+        "DiffID": "sha256:2497eefc52641b150e173349a15fd0247a0d6e9f409b8d0c3547ad9ee1344ec9"
+      }
+    ]
+  },
+  "Results": [
+    {
+      "Target": "astro-template:local-dev (alpine 3.22.2)",
+      "Class": "os-pkgs",
+      "Type": "alpine",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2024-58251",
+          "PkgID": "busybox@1.37.0-r19",
+          "PkgName": "busybox",
+          "PkgIdentifier": {
+            "PURL": "pkg:apk/alpine/busybox@1.37.0-r19?arch=x86_64\u0026distro=3.22.2",
+            "UID": "5158911d21d1c608"
+          },
+          "InstalledVersion": "1.37.0-r19",
+          "FixedVersion": "1.37.0-r20",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:256f393e029fa2063d8c93720da36a74a032bed3355a2bc3e313ad12f8bde9d1"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-58251",
+          "DataSource": {
+            "ID": "alpine",
+            "Name": "Alpine Secdb",
+            "URL": "https://secdb.alpinelinux.org/"
+          },
+          "Title": "In netstat in BusyBox through 1.37.0, local users can launch of networ ...",
+          "Description": "In netstat in BusyBox through 1.37.0, local users can launch of network application with an argv[0] containing an ANSI terminal escape sequence, leading to a denial of service (terminal locked up) when netstat is used by a victim.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-150"
+          ],
+          "VendorSeverity": {
+            "ubuntu": 2
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2025/04/23/6",
+            "https://bugs.busybox.net/show_bug.cgi?id=15922",
+            "https://www.busybox.net",
+            "https://www.busybox.net/downloads/",
+            "https://www.cve.org/CVERecord?id=CVE-2024-58251"
+          ],
+          "PublishedDate": "2025-04-23T18:16:03.057Z",
+          "LastModifiedDate": "2025-04-29T13:52:47.47Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-46394",
+          "PkgID": "busybox@1.37.0-r19",
+          "PkgName": "busybox",
+          "PkgIdentifier": {
+            "PURL": "pkg:apk/alpine/busybox@1.37.0-r19?arch=x86_64\u0026distro=3.22.2",
+            "UID": "5158911d21d1c608"
+          },
+          "InstalledVersion": "1.37.0-r19",
+          "FixedVersion": "1.37.0-r20",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:256f393e029fa2063d8c93720da36a74a032bed3355a2bc3e313ad12f8bde9d1"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-46394",
+          "DataSource": {
+            "ID": "alpine",
+            "Name": "Alpine Secdb",
+            "URL": "https://secdb.alpinelinux.org/"
+          },
+          "Title": "In tar in BusyBox through 1.37.0, a TAR archive can have filenames hid ...",
+          "Description": "In tar in BusyBox through 1.37.0, a TAR archive can have filenames hidden from a listing through the use of terminal escape sequences.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-451"
+          ],
+          "VendorSeverity": {
+            "nvd": 1,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 3.3
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2025/04/23/5",
+            "http://www.openwall.com/lists/oss-security/2025/04/24/3",
+            "https://bugs.busybox.net/show_bug.cgi?id=16018",
+            "https://lists.busybox.net/pipermail/busybox/2024-July/090806.html",
+            "https://lists.busybox.net/pipermail/busybox/2024-July/090814.html",
+            "https://www.busybox.net",
+            "https://www.busybox.net/downloads/",
+            "https://www.cve.org/CVERecord?id=CVE-2025-46394",
+            "https://www.openwall.com/lists/oss-security/2025/04/23/1"
+          ],
+          "PublishedDate": "2025-04-23T16:15:48.713Z",
+          "LastModifiedDate": "2025-09-24T14:38:22.127Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-58251",
+          "PkgID": "busybox-binsh@1.37.0-r19",
+          "PkgName": "busybox-binsh",
+          "PkgIdentifier": {
+            "PURL": "pkg:apk/alpine/busybox-binsh@1.37.0-r19?arch=x86_64\u0026distro=3.22.2",
+            "UID": "7150d5a240bb77cc"
+          },
+          "InstalledVersion": "1.37.0-r19",
+          "FixedVersion": "1.37.0-r20",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:256f393e029fa2063d8c93720da36a74a032bed3355a2bc3e313ad12f8bde9d1"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-58251",
+          "DataSource": {
+            "ID": "alpine",
+            "Name": "Alpine Secdb",
+            "URL": "https://secdb.alpinelinux.org/"
+          },
+          "Title": "In netstat in BusyBox through 1.37.0, local users can launch of networ ...",
+          "Description": "In netstat in BusyBox through 1.37.0, local users can launch of network application with an argv[0] containing an ANSI terminal escape sequence, leading to a denial of service (terminal locked up) when netstat is used by a victim.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-150"
+          ],
+          "VendorSeverity": {
+            "ubuntu": 2
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2025/04/23/6",
+            "https://bugs.busybox.net/show_bug.cgi?id=15922",
+            "https://www.busybox.net",
+            "https://www.busybox.net/downloads/",
+            "https://www.cve.org/CVERecord?id=CVE-2024-58251"
+          ],
+          "PublishedDate": "2025-04-23T18:16:03.057Z",
+          "LastModifiedDate": "2025-04-29T13:52:47.47Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-46394",
+          "PkgID": "busybox-binsh@1.37.0-r19",
+          "PkgName": "busybox-binsh",
+          "PkgIdentifier": {
+            "PURL": "pkg:apk/alpine/busybox-binsh@1.37.0-r19?arch=x86_64\u0026distro=3.22.2",
+            "UID": "7150d5a240bb77cc"
+          },
+          "InstalledVersion": "1.37.0-r19",
+          "FixedVersion": "1.37.0-r20",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:256f393e029fa2063d8c93720da36a74a032bed3355a2bc3e313ad12f8bde9d1"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-46394",
+          "DataSource": {
+            "ID": "alpine",
+            "Name": "Alpine Secdb",
+            "URL": "https://secdb.alpinelinux.org/"
+          },
+          "Title": "In tar in BusyBox through 1.37.0, a TAR archive can have filenames hid ...",
+          "Description": "In tar in BusyBox through 1.37.0, a TAR archive can have filenames hidden from a listing through the use of terminal escape sequences.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-451"
+          ],
+          "VendorSeverity": {
+            "nvd": 1,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 3.3
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2025/04/23/5",
+            "http://www.openwall.com/lists/oss-security/2025/04/24/3",
+            "https://bugs.busybox.net/show_bug.cgi?id=16018",
+            "https://lists.busybox.net/pipermail/busybox/2024-July/090806.html",
+            "https://lists.busybox.net/pipermail/busybox/2024-July/090814.html",
+            "https://www.busybox.net",
+            "https://www.busybox.net/downloads/",
+            "https://www.cve.org/CVERecord?id=CVE-2025-46394",
+            "https://www.openwall.com/lists/oss-security/2025/04/23/1"
+          ],
+          "PublishedDate": "2025-04-23T16:15:48.713Z",
+          "LastModifiedDate": "2025-09-24T14:38:22.127Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-58251",
+          "PkgID": "ssl_client@1.37.0-r19",
+          "PkgName": "ssl_client",
+          "PkgIdentifier": {
+            "PURL": "pkg:apk/alpine/ssl_client@1.37.0-r19?arch=x86_64\u0026distro=3.22.2",
+            "UID": "691bd1fc4de953e2"
+          },
+          "InstalledVersion": "1.37.0-r19",
+          "FixedVersion": "1.37.0-r20",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:256f393e029fa2063d8c93720da36a74a032bed3355a2bc3e313ad12f8bde9d1"
+          },
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-58251",
+          "DataSource": {
+            "ID": "alpine",
+            "Name": "Alpine Secdb",
+            "URL": "https://secdb.alpinelinux.org/"
+          },
+          "Title": "In netstat in BusyBox through 1.37.0, local users can launch of networ ...",
+          "Description": "In netstat in BusyBox through 1.37.0, local users can launch of network application with an argv[0] containing an ANSI terminal escape sequence, leading to a denial of service (terminal locked up) when netstat is used by a victim.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-150"
+          ],
+          "VendorSeverity": {
+            "ubuntu": 2
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2025/04/23/6",
+            "https://bugs.busybox.net/show_bug.cgi?id=15922",
+            "https://www.busybox.net",
+            "https://www.busybox.net/downloads/",
+            "https://www.cve.org/CVERecord?id=CVE-2024-58251"
+          ],
+          "PublishedDate": "2025-04-23T18:16:03.057Z",
+          "LastModifiedDate": "2025-04-29T13:52:47.47Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-46394",
+          "PkgID": "ssl_client@1.37.0-r19",
+          "PkgName": "ssl_client",
+          "PkgIdentifier": {
+            "PURL": "pkg:apk/alpine/ssl_client@1.37.0-r19?arch=x86_64\u0026distro=3.22.2",
+            "UID": "691bd1fc4de953e2"
+          },
+          "InstalledVersion": "1.37.0-r19",
+          "FixedVersion": "1.37.0-r20",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:256f393e029fa2063d8c93720da36a74a032bed3355a2bc3e313ad12f8bde9d1"
+          },
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-46394",
+          "DataSource": {
+            "ID": "alpine",
+            "Name": "Alpine Secdb",
+            "URL": "https://secdb.alpinelinux.org/"
+          },
+          "Title": "In tar in BusyBox through 1.37.0, a TAR archive can have filenames hid ...",
+          "Description": "In tar in BusyBox through 1.37.0, a TAR archive can have filenames hidden from a listing through the use of terminal escape sequences.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-451"
+          ],
+          "VendorSeverity": {
+            "nvd": 1,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 3.3
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2025/04/23/5",
+            "http://www.openwall.com/lists/oss-security/2025/04/24/3",
+            "https://bugs.busybox.net/show_bug.cgi?id=16018",
+            "https://lists.busybox.net/pipermail/busybox/2024-July/090806.html",
+            "https://lists.busybox.net/pipermail/busybox/2024-July/090814.html",
+            "https://www.busybox.net",
+            "https://www.busybox.net/downloads/",
+            "https://www.cve.org/CVERecord?id=CVE-2025-46394",
+            "https://www.openwall.com/lists/oss-security/2025/04/23/1"
+          ],
+          "PublishedDate": "2025-04-23T16:15:48.713Z",
+          "LastModifiedDate": "2025-09-24T14:38:22.127Z"
+        }
+      ]
+    },
+    {
+      "Target": "Node.js",
+      "Class": "lang-pkgs",
+      "Type": "node-pkg",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2025-64756",
+          "PkgID": "glob@10.4.5",
+          "PkgName": "glob",
+          "PkgPath": "usr/local/lib/node_modules/npm/node_modules/node-gyp/node_modules/glob/package.json",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/glob@10.4.5",
+            "UID": "bf9151a5245cd2b"
+          },
+          "InstalledVersion": "10.4.5",
+          "FixedVersion": "11.1.0, 10.5.0",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:b0f89ac7b96689b3a3132ecd2a444b2c50457582dd0d902d5df4fb1dc387dadf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-64756",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+          "Description": "Glob matches files using patterns the shell uses. Starting in version 10.2.0 and prior to versions 10.5.0 and 11.1.0, the glob CLI contains a command injection vulnerability in its -c/--cmd option that allows arbitrary command execution when processing files with malicious names. When glob -c \u003ccommand\u003e \u003cpatterns\u003e are used, matched filenames are passed to a shell with shell: true, enabling shell metacharacters in filenames to trigger command injection and achieve arbitrary code execution under the user or CI account privileges. This issue has been patched in versions 10.5.0 and 11.1.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-78"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/isaacs/node-glob",
+            "https://github.com/isaacs/node-glob/commit/1e4e297342a09f2aa0ced87fcd4a70ddc325d75f",
+            "https://github.com/isaacs/node-glob/commit/47473c046b91c67269df7a66eab782a6c2716146",
+            "https://github.com/isaacs/node-glob/security/advisories/GHSA-5j98-mcp5-4vw2",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-64756"
+          ],
+          "PublishedDate": "2025-11-17T18:15:58.27Z",
+          "LastModifiedDate": "2025-11-19T03:16:03.67Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-64756",
+          "PkgID": "glob@11.0.3",
+          "PkgName": "glob",
+          "PkgPath": "usr/local/lib/node_modules/npm/node_modules/glob/package.json",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/glob@11.0.3",
+            "UID": "7f4b2811dd6b7f72"
+          },
+          "InstalledVersion": "11.0.3",
+          "FixedVersion": "11.1.0, 10.5.0",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:b0f89ac7b96689b3a3132ecd2a444b2c50457582dd0d902d5df4fb1dc387dadf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-64756",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "glob CLI: Command injection via -c/--cmd executes matches with shell:true",
+          "Description": "Glob matches files using patterns the shell uses. Starting in version 10.2.0 and prior to versions 10.5.0 and 11.1.0, the glob CLI contains a command injection vulnerability in its -c/--cmd option that allows arbitrary command execution when processing files with malicious names. When glob -c \u003ccommand\u003e \u003cpatterns\u003e are used, matched filenames are passed to a shell with shell: true, enabling shell metacharacters in filenames to trigger command injection and achieve arbitrary code execution under the user or CI account privileges. This issue has been patched in versions 10.5.0 and 11.1.0.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-78"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://github.com/isaacs/node-glob",
+            "https://github.com/isaacs/node-glob/commit/1e4e297342a09f2aa0ced87fcd4a70ddc325d75f",
+            "https://github.com/isaacs/node-glob/commit/47473c046b91c67269df7a66eab782a6c2716146",
+            "https://github.com/isaacs/node-glob/security/advisories/GHSA-5j98-mcp5-4vw2",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-64756"
+          ],
+          "PublishedDate": "2025-11-17T18:15:58.27Z",
+          "LastModifiedDate": "2025-11-19T03:16:03.67Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-64118",
+          "PkgID": "tar@7.5.1",
+          "PkgName": "tar",
+          "PkgPath": "usr/local/lib/node_modules/npm/node_modules/tar/package.json",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/tar@7.5.1",
+            "UID": "cfd9800cbd43da7e"
+          },
+          "InstalledVersion": "7.5.1",
+          "FixedVersion": "7.5.2",
+          "Status": "fixed",
+          "Layer": {
+            "DiffID": "sha256:b0f89ac7b96689b3a3132ecd2a444b2c50457582dd0d902d5df4fb1dc387dadf"
+          },
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-64118",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "node-tar has a race condition leading to uninitialized memory exposure",
+          "Description": "node-tar is a Tar for Node.js. In 7.5.1, using .t (aka .list) with { sync: true } to read tar entry contents returns uninitialized memory contents if tar file was changed on disk to a smaller size while being read. This vulnerability is fixed in 7.5.2.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-362",
+            "CWE-367"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2
+          },
+          "References": [
+            "https://github.com/isaacs/node-tar",
+            "https://github.com/isaacs/node-tar/commit/5330eb04bc43014f216e5c271b40d5c00d45224d",
+            "https://github.com/isaacs/node-tar/commit/5e1a8e638600d3c3a2969b4de6a6ec44fa8d74c9",
+            "https://github.com/isaacs/node-tar/issues/445",
+            "https://github.com/isaacs/node-tar/pull/446",
+            "https://github.com/isaacs/node-tar/security/advisories/GHSA-29xp-372q-xqph",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-64118"
+          ],
+          "PublishedDate": "2025-10-30T18:15:33.673Z",
+          "LastModifiedDate": "2025-11-04T15:41:56.843Z"
+        }
+      ]
+    }
+  ]
+}
