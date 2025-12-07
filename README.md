@@ -9,6 +9,8 @@
 - Supports custom issue titles and labels.
 - Automatically closes old issues when no vulnerabilities are found.
 
+To check an example of the generated report, see [this issue](https://github.com/brpaz/trivy-reporter-action/issues/1).
+
 ## Getting Started
 
 This GitHub Action reads the JSON output from a Trivy vulnerability scan and creates or updates a GitHub Issue with the security report. It helps you keep track of vulnerabilities found in your projects directly within GitHub.
