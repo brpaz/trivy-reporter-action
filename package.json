@@ -1,7 +1,7 @@
 {
   "name": "trivy-reporter-action",
   "description": "A GitHub Action to manage Trivy security reports using GitHub Issues",
-  "version": "0.0.0",
+  "version": "0.1.2",
   "author": "Bruno Paz",
   "private": true,
   "type": "module",
