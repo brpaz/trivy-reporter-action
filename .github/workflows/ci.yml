@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - 'main'
+      - "main"
   pull_request:
     branches:
-      - 'main'
+      - "main"
   release:
     types: [published]
 
@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version-file: '.node-version'
+          node-version-file: ".node-version"
           cache: pnpm
 
       - name: Install Dependencies
@@ -70,7 +70,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version-file: '.node-version'
+          node-version-file: ".node-version"
           cache: pnpm
 
       - name: Install Dependencies
@@ -83,10 +83,10 @@ jobs:
         id: test-action
         uses: ./
         with:
-          report-path: 'example/trivy-result.json'
-          issue-title: 'Test Trivy Security Report'
+          report-path: "example/trivy-result.json"
+          issue-title: "Test Trivy Security Report"
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          labels: 'test,security'
+          labels: "test,security"
 
       - name: Print Output
         id: output

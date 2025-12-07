@@ -1,6 +1,6 @@
-name: 'trivy-reporter-action'
-description: 'A GitHub Action to manage Trivy security reports using GitHub Issues'
-author: 'Bruno Paz'
+name: "trivy-reporter-action"
+description: "A GitHub Action to manage Trivy security reports using GitHub Issues"
+author: "Bruno Paz"
 
 branding:
   icon: shield
@@ -8,25 +8,24 @@ branding:
 
 inputs:
   report-path:
-    description: 'The path to the Trivy report file in JSON format'
+    description: "The path to the Trivy report file in JSON format"
     required: false
-    default: 'trivy-report.json'
+    default: "trivy-report.json"
   issue-title:
-    description: 'The title of the GitHub Issue to create or update'
+    description: "The title of the GitHub Issue to create or update"
     required: false
-    default: 'Trivy Security Report'
+    default: "Trivy Security Report"
   github-token:
-    description: 'GitHub token to authenticate API requests'
-    required: false
-    default: '${{ secrets.GITHUB_TOKEN }}'
+    description: "GitHub token to authenticate API requests"
+    required: true
   labels:
-    description: 'Comma-separated list of labels to apply to the issue'
+    description: "Comma-separated list of labels to apply to the issue"
     required: false
-    default: ''
+    default: ""
 
 outputs:
   issue-url:
-    description: 'The URL of the created or updated GitHub Issue containing the Trivy report'
+    description: "The URL of the created or updated GitHub Issue containing the Trivy report"
 
 runs:
   using: node24
